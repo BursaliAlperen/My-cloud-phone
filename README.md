@@ -46,3 +46,24 @@ Gereksinimler: Android Studio, JDK 17, Android SDK 35 ve Gradle 8.9.
 - Uzak ekrani kimlik dogrulama ve TLS arkasinda yayinla; mumkunse VPN veya erisim kontrolu kullan.
 - APK aktarim anahtarini paylasma; test disinda guclu ve degistirilebilir anahtar kullan.
 - Bu surum uzak ekran istemcisi ve APK gonderim istemcisidir; Android VM/kurulum API'si henuz sunucu tarafinda kurulmus degildir.
+
+
+## APK kurulum API'si (uyumlu bir Linux Android-host üzerinde)
+
+`server/` klasoru, istemcinin APK yukleme istegini kabul eden Node.js API'sini icerir.
+API Bearer token ister, tek APK icin 250 MB boyut siniri uygular, ZIP/APK basligini kontrol eder ve APK'yi ayarli Android VM'e `adb install -r` ile kurar.
+
+Ornek baslatma (API ile Android VM ayni ozel Docker aginda/ozel agda erisebilir olmali):
+
+```sh
+cd server
+export MYCLOUDPHONE_UPLOAD_TOKEN="$(openssl rand -hex 32)"
+export ADB_SERIAL="android-vm:5555"
+docker build -t mycloudphone-install-api .
+docker run --rm -p 8080:8080 \
+  -e MYCLOUDPHONE_UPLOAD_TOKEN="$MYCLOUDPHONE_UPLOAD_TOKEN" \
+  -e ADB_SERIAL="$ADB_SERIAL" \
+  mycloudphone-install-api
+```
+
+Bu komut tek basina Android VM yaratmaz. `android-vm:5555` adresinde calisan ve yalnizca ozel agdan erisilen bir Android VM/ADB servisi onceden bulunmalidir. API'yi internete acacaksan TLS reverse proxy ve erisim kontrolu kullan; ADB portunu asla internete acma. Bu API, uyumlu sunucu bulunmadan APK yuklemesini tamamlayamaz.
