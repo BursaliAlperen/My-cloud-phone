@@ -97,6 +97,11 @@ class MainActivity : Activity() {
         root.addView(row)
 
         root.addView(Button(this).apply {
+            text = "Yerel Android sanal makinesini aç"
+            setOnClickListener { openLocalAndroidVm() }
+        })
+
+        root.addView(Button(this).apply {
             text = "VPN ayarları / WireGuard"
             setOnClickListener { openWireGuard() }
         })
@@ -222,6 +227,21 @@ class MainActivity : Activity() {
                 connection?.disconnect()
             }
         }.start()
+    }
+
+    private fun openLocalAndroidVm() {
+        val launch = packageManager.getLaunchIntentForPackage("com.vmos.virtual")
+        if (launch != null) {
+            startActivity(launch)
+            message.text = "VMOS açıldı. Sanal Android'i VMOS içinden başlat."
+        } else {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.vmos.virtual")))
+                message.text = "VMOS'u yükle; sonra bu düğmeyle açabilirsin."
+            } catch (_: Exception) {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.vmos.virtual")))
+            }
+        }
     }
 
     private fun openWireGuard() {
