@@ -168,21 +168,21 @@ class MainActivity : Activity() {
             var connection: HttpURLConnection? = null
             try {
                 val parsed = Uri.parse(base)
-                val endpoint = "https://" + parsed.host +
-                    (if (parsed.port != -1) ":\u0024{parsed.port}" else "") + "/api/apps/install"
-                val boundary = "----MyCloudPhone\u0024{UUID.randomUUID()}"
+                val portSuffix = if (parsed.port != -1) ":" + parsed.port else ""
+                val endpoint = "https://" + parsed.host + portSuffix + "/api/apps/install"
+                val boundary = "----MyCloudPhone-" + UUID.randomUUID().toString()
                 connection = (URL(endpoint).openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     connectTimeout = 20000
                     readTimeout = 120000
                     doOutput = true
-                    setRequestProperty("Content-Type", "multipart/form-data; boundary=\u0024boundary")
+                    setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary)
                     setRequestProperty("Accept", "application/json")
-                    if (token.isNotBlank()) setRequestProperty("Authorization", "Bearer \u0024token")
+                    if (token.isNotBlank()) setRequestProperty("Authorization", "Bearer " + token)
                     setChunkedStreamingMode(64 * 1024)
                 }
                 val output = connection.outputStream
-                output.write("--\u0024boundary\r\n".toByteArray())
+                output.write(("--" + boundary + "\r\n").toByteArray())
                 output.write("Content-Disposition: form-data; name=\"apk\"; filename=\"upload.apk\"\r\n".toByteArray())
                 output.write("Content-Type: application/vnd.android.package-archive\r\n\r\n".toByteArray())
                 contentResolver.openInputStream(uri).use { input ->
@@ -194,7 +194,7 @@ class MainActivity : Activity() {
                         output.write(buffer, 0, count)
                     }
                 }
-                output.write("\r\n--\u0024boundary--\r\n".toByteArray())
+                output.write(("\r\n--" + boundary + "--\r\n").toByteArray())
                 output.flush()
                 output.close()
                 val code = connection.responseCode
@@ -202,11 +202,11 @@ class MainActivity : Activity() {
                     ?.bufferedReader()?.use { it.readText() } ?: ""
                 runOnUiThread {
                     message.text = if (code in 200..299)
-                        "APK sunucuya gönderildi. Sunucu yanıtı: \u0024{body.take(180)}"
+                        "APK sunucuya gönderildi. Sunucu yanıtı: " + body.take(180)
                     else "APK aktarımı başarısız (HTTP \u0024code). Sunucu API'sini kontrol et."
                 }
             } catch (e: Exception) {
-                runOnUiThread { message.text = "APK aktarılamadı: \u0024{e.message ?: "bağlantı hatası"}" }
+                runOnUiThread { message.text = "APK aktarılamadı: " + (e.message ?: "bağlantı hatası") }
             } finally {
                 connection?.disconnect()
             }
