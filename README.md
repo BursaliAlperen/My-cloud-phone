@@ -67,3 +67,7 @@ docker run --rm -p 8080:8080 \
 ```
 
 Bu komut tek basina Android VM yaratmaz. `android-vm:5555` adresinde calisan ve yalnizca ozel agdan erisilen bir Android VM/ADB servisi onceden bulunmalidir. API'yi internete acacaksan TLS reverse proxy ve erisim kontrolu kullan; ADB portunu asla internete acma. Bu API, uyumlu sunucu bulunmadan APK yuklemesini tamamlayamaz.
+
+
+## VPN (WireGuard)
+The Android client includes a shortcut to the official WireGuard Android app. Install WireGuard, then import a WireGuard `.conf` profile (or QR code) supplied by a VPN provider or a WireGuard server you control. MyCloudPhone does not bundle a VPN exit server or provide free VPN credentials. Without a valid profile and reachable VPN server, no VPN connection can be established. WireGuard supports userspace operation without root on Android.
