@@ -97,6 +97,17 @@ class MainActivity : Activity() {
         root.addView(row)
 
         root.addView(Button(this).apply {
+            text = "VPN ayarları / WireGuard"
+            setOnClickListener { openWireGuard() }
+        })
+        root.addView(TextView(this).apply {
+            text = "VPN kullanmak için bir WireGuard .conf profili gerekir. MyCloudPhone VPN sunucusu veya ücretsiz çıkış sunucusu sağlamaz."
+            textSize = 11f
+            setTextColor(Color.LTGRAY)
+            setPadding(3, 2, 3, 6)
+        })
+
+        root.addView(Button(this).apply {
             text = "＋ Ana cihazdan APK içe aktar"
             setOnClickListener {
                 val server = address.text.toString().trim()
@@ -211,6 +222,21 @@ class MainActivity : Activity() {
                 connection?.disconnect()
             }
         }.start()
+    }
+
+    private fun openWireGuard() {
+        val launch = packageManager.getLaunchIntentForPackage("com.wireguard.android")
+        if (launch != null) {
+            startActivity(launch)
+            message.text = "WireGuard açıldı. + düğmesinden VPN profilini içe aktarabilirsin."
+        } else {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.wireguard.android")))
+                message.text = "Önce resmi WireGuard uygulamasını yükle."
+            } catch (_: Exception) {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.wireguard.android")))
+            }
+        }
     }
 
     private fun hideKeyboard() {
