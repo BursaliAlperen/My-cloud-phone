@@ -75,6 +75,18 @@ app.use((err, _req, res, _next) => {
   res.status(400).json({ error: err.message || "Bad request" });
 });
 
-app.listen(port, "0.0.0.0", () => {
-  console.log("MyCloudPhone install API listening on " + port);
-});
+async function start() {
+  if (serial && serial.includes(":")) {
+    try {
+      const { stdout, stderr } = await execFileAsync("adb", ["connect", serial], { timeout: 15000 });
+      console.log((stdout + " " + stderr).trim());
+    } catch (e) {
+      console.error("ADB connect failed:", e.message);
+      process.exit(1);
+    }
+  }
+  app.listen(port, "0.0.0.0", () => {
+    console.log("MyCloudPhone install API listening on " + port);
+  });
+}
+start();
