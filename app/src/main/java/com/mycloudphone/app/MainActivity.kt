@@ -203,7 +203,7 @@ class MainActivity : Activity() {
                 runOnUiThread {
                     message.text = if (code in 200..299)
                         "APK sunucuya gönderildi. Sunucu yanıtı: " + body.take(180)
-                    else "APK aktarımı başarısız (HTTP \u0024code). Sunucu API'sini kontrol et."
+                    else "APK aktarımı başarısız (HTTP " + code + "). Sunucu API'sini kontrol et."
                 }
             } catch (e: Exception) {
                 runOnUiThread { message.text = "APK aktarılamadı: " + (e.message ?: "bağlantı hatası") }
